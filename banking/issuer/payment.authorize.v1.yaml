@@ -1,6 +1,6 @@
 openapi: 3.2.0
 info:
-  title: Issuer Simulator API (Authorize UC)
+  title: Banking Issuer
   version: v1
   description: |
     - Issuer test API

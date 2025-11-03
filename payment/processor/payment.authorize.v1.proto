@@ -1,11 +1,6 @@
 syntax = "proto3";
 
-package payment.authorize.protoc.v1;
-
 import "google/protobuf/timestamp.proto";
-
-option java_multiple_files = true;
-option java_package = "org.hamsaqua.payment.authorize.protoc.v1";
 
 message HealthRequest {
 }

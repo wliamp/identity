@@ -2,12 +2,6 @@ openapi: 3.2.0
 info:
   title: Payment Gateway
   version: v1
-  x-service-name: payment-gateway
-  x-codegen-settings:
-    java:
-      packageName: org.hamsaqua.payment.authorize.openapi.v1.gateway
-    kotlin:
-      packageName: org.hamsaqua.payment.authorize.openapi.v1.gateway
   description: |
     - Public endpoint for merchants to initiate authorization requests.
     - Immediate ACK returned; final result delivered via webhook/callback or via event.

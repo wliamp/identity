@@ -1,10 +1,5 @@
 syntax = "proto3";
 
-package payment.authorize.protoc.v1;
-
-option java_multiple_files = true;
-option java_package = "org.hamsaqua.payment.authorize.protoc.v1";
-
 message RouteRequest {
   string transaction_id = 1;
   string correlation_id = 2;

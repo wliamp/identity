@@ -6,13 +6,13 @@ plugins {
 }
 
 group = "org.hamsaqua"
-version = getenv("VERSION") ?: "SNAPSHOT"
+version = getenv("VERSION") ?: ""
 
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
-            artifactId = getenv("ARTIFACT_ID")
+            artifactId = getenv("ARTIFACT") ?: ""
             pom {
                 name.set(artifactId)
                 description.set("Internal API Contracts")

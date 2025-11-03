@@ -1,6 +1,6 @@
 openapi: 3.2.0
 info:
-  title: Merchant Payment API
+  title: Shopping Merchant
   version: v1
   description: |
     Merchant-facing APIs for initiating and handling payment authorization flows.
@@ -8,7 +8,7 @@ info:
     - Public endpoint (called by payer-facing app)
     - Webhook endpoint (called by payment gateway)
 servers:
-  - url: https://merchant.api.internal
+  - url: https://merchant.internal
 paths:
   /v1/checkout/pay:
     post:
