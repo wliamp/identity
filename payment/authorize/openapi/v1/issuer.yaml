@@ -1,0 +1,48 @@
+openapi: 3.2.0
+info:
+  title: Issuer Simulator API (Authorize UC)
+  version: v1
+  description: |
+    - Issuer test API
+    - Simulated rules: if amount <= balance & card active -> APPROVED."
+servers:
+  - url: https://issuer.internal
+paths:
+  /v1/authorize:
+    post:
+      summary: Authorize transaction at issuer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IssuerAuthorizeRequestV1'
+      responses:
+        '200':
+          description: Issuer decision
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssuerAuthorizeResponseV1'
+components:
+  schemas:
+    IssuerAuthorizeRequestV1:
+      type: object
+      properties:
+        transactionId: { type: string, format: uuid }
+        correlationId: { type: string, format: uuid }
+        payerId: { type: string }
+        amount: { type: number }
+        currency: { type: string }
+      required: [ transactionId, correlationId, payerId, amount, currency ]
+    IssuerAuthorizeResponseV1:
+      type: object
+      properties:
+        transactionId: { type: string, format: uuid }
+        correlationId: { type: string, format: uuid }
+        status: { type: string, enum: [ APPROVED, DECLINED, ERROR ] }
+        authorizeCode: { type: string, nullable: true }
+        reason: { type: string, nullable: true }
+        timestamp: { type: string, format: date-time }
+      required: [ transactionId, status, timestamp ]
+security: [ ]
