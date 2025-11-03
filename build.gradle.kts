@@ -6,17 +6,17 @@ plugins {
 }
 
 group = "org.hamsaqua"
-version = getenv("VERSION") ?: ""
+version = getenv("ARTIFACT_VER") ?: ""
 
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
-            artifactId = getenv("ARTIFACT") ?: ""
+            artifactId = getenv("ARTIFACT_ID") ?: ""
             pom {
                 name.set(artifactId)
-                description.set("Internal API Contracts")
-                url.set("https://github.com/hamsaqua/api")
+                description.set("Internal REST API Contracts")
+                url.set("https://github.com/hamsaqua/rest")
             }
         }
     }
@@ -24,7 +24,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/hamsaqua/api")
+            url = uri("https://maven.pkg.github.com/hamsaqua/rest")
             credentials {
                 username = getenv("GITHUB_ACTOR") ?: ""
                 password = getenv("GITHUB_TOKEN") ?: ""
