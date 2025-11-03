@@ -1,0 +1,235 @@
+name: Codegen & Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: "Scope or domain group (e.g., payment, auth)"
+        required: true
+      service:
+        description: "Service name (e.g., merchant, user)"
+        required: true
+      domain:
+        description: "Domain logic group (e.g., account, transaction)"
+        required: true
+      usecase:
+        description: "Use case identifier (e.g., transfer, login)"
+        required: true
+      version:
+        description: "Version (e.g., v1)"
+        required: true
+      artifact:
+        description: "Artifact ID for Gradle publishing"
+        required: true
+      version_tag:
+        description: "Version for Gradle publishing"
+        required: true
+
+jobs:
+  codegen_publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout repo
+      - uses: actions/checkout@v4
+
+      # 2️⃣ Setup environment variables
+      - name: ⚙️ Setup environment
+        run: |
+          echo "MOUNT_PATH=/repo" >> $GITHUB_ENV
+          echo "SPEC_PATH=${MOUNT_PATH}/${{ inputs.scope }}/${{ inputs.service }}/${{ inputs.domain }}.${{ inputs.usecase }}.${{ inputs.version }}.yaml" >> $GITHUB_ENV
+          echo "OUTPUT_BASE=${MOUNT_PATH}/build/generated" >> $GITHUB_ENV
+          echo "ARTIFACT_ID=${{ inputs.artifact }}" >> $GITHUB_ENV
+          echo "VERSION_TAG=${{ inputs.version_tag }}" >> $GITHUB_ENV
+          echo "GITHUB_ACTOR=${{ github.actor }}" >> $GITHUB_ENV
+
+      # 3️⃣ Pull Docker image (OpenAPI Generator)
+      - name: 🐳 Pull OpenAPI Generator image
+        run: docker pull openapitools/openapi-generator-cli:latest
+
+      # 4️⃣ Generate DTOs (models only)
+      - name: 📦 Generate DTOs
+        run: |
+          docker run --rm -v "${PWD}:$MOUNT_PATH" openapitools/openapi-generator-cli:latest generate \
+            -i $SPEC_PATH \
+            -g spring \
+            -o $OUTPUT_BASE/models \
+            --global-property models,modelDocs=false,apis=false,supportingFiles=false \
+            --additional-properties \
+              dateLibrary=java8,\
+              hideGenerationTimestamp=true,\
+              serializableModel=true,\
+              modelPackage=org.hamsaqua.${{ inputs.scope }}.${{ inputs.service }}.${{ inputs.version }}
+
+      # 5️⃣ Generate API interfaces
+      - name: 🔧 Generate API Interfaces
+        run: |
+          docker run --rm -v "${PWD}:$MOUNT_PATH" openapitools/openapi-generator-cli:latest generate \
+            -i $SPEC_PATH \
+            -g ktor \
+            -o $OUTPUT_BASE/apis \
+            --global-property apis,apiDocs=false,models=false,supportingFiles=false \
+            --additional-properties \
+              interfaceOnly=true,\
+              useTags=true,\
+              openApiNullable=false,\
+              hideGenerationTimestamp=true,\
+              basePackage=org.hamsaqua.${{ inputs.scope }}.${{ inputs.service }}.${{ inputs.version }},\
+              apiPackage=org.hamsaqua.${{ inputs.scope }}.${{ inputs.service }}.${{ inputs.version }}.server.api
+
+      # 6️⃣ Generate REST clients
+      - name: 🌐 Generate REST Clients
+        run: |
+          docker run --rm -v "${PWD}:$MOUNT_PATH" openapitools/openapi-generator-cli:latest generate \
+            -i $SPEC_PATH \
+            -g ktor \
+            -o $OUTPUT_BASE/clients \
+            --global-property apiDocs=false,models=false,supportingFiles=false \
+            --additional-properties \
+              library=webclient,\
+              dateLibrary=java8,\
+              hideGenerationTimestamp=true,\
+              invokerPackage=org.hamsaqua.${{ inputs.scope }}.${{ inputs.service }}.${{ inputs.version }}.client.invoker,\
+              apiPackage=org.hamsaqua.${{ inputs.scope }}.${{ inputs.service }}.${{ inputs.version }}.client.api,\
+              modelPackage=org.hamsaqua.${{ inputs.scope }}.${{ inputs.service }}.${{ inputs.version }}.client.model
+
+      # 7️⃣ Setup Java & Gradle
+      - name: ⚙️ Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: ⚙️ Cache Gradle
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/build.gradle.kts') }}
+
+      # 8️⃣ Build & publish with Gradle
+      - name: 🏗 Build & Publish
+        run: |
+          ./gradlew publish \
+            -PARTIFACT_ID=$ARTIFACT_ID \
+            -PVERSION=$VERSION_TAG \
+            -PGITHUB_ACTOR=$GITHUB_ACTOR \
+            -PGITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+name: Codegen & Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: "Scope or domain group (e.g., payment, auth)"
+        required: true
+      service:
+        description: "Service name (e.g., merchant, user)"
+        required: true
+      domain:
+        description: "Domain logic group (e.g., account, transaction)"
+        required: true
+      usecase:
+        description: "Use case identifier (e.g., transfer, login)"
+        required: true
+      version:
+        description: "Version (e.g., v1)"
+        required: true
+      artifact:
+        description: "Artifact ID for Gradle publishing"
+        required: true
+      version_tag:
+        description: "Version for Gradle publishing"
+        required: true
+
+jobs:
+  codegen_publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout repo
+      - uses: actions/checkout@v4
+
+      # 2️⃣ Setup environment variables
+      - name: ⚙️ Setup environment
+        run: |
+          echo "MOUNT_PATH=/repo" >> $GITHUB_ENV
+          echo "SPEC_PATH=${MOUNT_PATH}/${{ inputs.scope }}/${{ inputs.service }}/${{ inputs.domain }}.${{ inputs.usecase }}.${{ inputs.version }}.yaml" >> $GITHUB_ENV
+          echo "OUTPUT_BASE=${MOUNT_PATH}/build/generated" >> $GITHUB_ENV
+          echo "ARTIFACT_ID=${{ inputs.artifact }}" >> $GITHUB_ENV
+          echo "VERSION_TAG=${{ inputs.version_tag }}" >> $GITHUB_ENV
+          echo "GITHUB_ACTOR=${{ github.actor }}" >> $GITHUB_ENV
+
+      # 3️⃣ Pull Docker image (OpenAPI Generator)
+      - name: 🐳 Pull OpenAPI Generator image
+        run: docker pull openapitools/openapi-generator-cli:latest
+
+      # 4️⃣ Generate DTOs (models only)
+      - name: 📦 Generate DTOs
+        run: |
+          docker run --rm -v "${PWD}:$MOUNT_PATH" openapitools/openapi-generator-cli:latest generate \
+            -i $SPEC_PATH \
+            -g spring \
+            -o $OUTPUT_BASE/models \
+            --global-property models,modelDocs=false,apis=false,supportingFiles=false \
+            --additional-properties \
+              dateLibrary=java8,\
+              hideGenerationTimestamp=true,\
+              serializableModel=true,\
+              modelPackage=org.hamsaqua.${{ inputs.scope }}.${{ inputs.service }}.${{ inputs.version }}
+
+      # 5️⃣ Generate API interfaces
+      - name: 🔧 Generate API Interfaces
+        run: |
+          docker run --rm -v "${PWD}:$MOUNT_PATH" openapitools/openapi-generator-cli:latest generate \
+            -i $SPEC_PATH \
+            -g ktor \
+            -o $OUTPUT_BASE/apis \
+            --global-property apis,apiDocs=false,models=false,supportingFiles=false \
+            --additional-properties \
+              interfaceOnly=true,\
+              useTags=true,\
+              openApiNullable=false,\
+              hideGenerationTimestamp=true,\
+              basePackage=org.hamsaqua.${{ inputs.scope }}.${{ inputs.service }}.${{ inputs.version }},\
+              apiPackage=org.hamsaqua.${{ inputs.scope }}.${{ inputs.service }}.${{ inputs.version }}.server.api
+
+      # 6️⃣ Generate REST clients
+      - name: 🌐 Generate REST Clients
+        run: |
+          docker run --rm -v "${PWD}:$MOUNT_PATH" openapitools/openapi-generator-cli:latest generate \
+            -i $SPEC_PATH \
+            -g ktor \
+            -o $OUTPUT_BASE/clients \
+            --global-property apiDocs=false,models=false,supportingFiles=false \
+            --additional-properties \
+              library=webclient,\
+              dateLibrary=java8,\
+              hideGenerationTimestamp=true,\
+              invokerPackage=org.hamsaqua.${{ inputs.scope }}.${{ inputs.service }}.${{ inputs.version }}.client.invoker,\
+              apiPackage=org.hamsaqua.${{ inputs.scope }}.${{ inputs.service }}.${{ inputs.version }}.client.api,\
+
+      # 7️⃣ Setup Java & Gradle
+      - name: ⚙️ Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: ⚙️ Cache Gradle
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/build.gradle.kts') }}
+
+      # 8️⃣ Build & publish with Gradle
+      - name: 🏗 Build & Publish
+        run: |
+          ./gradlew publish \
+            -PARTIFACT_ID=$ARTIFACT_ID \
+            -PVERSION=$VERSION_TAG \
+            -PGITHUB_ACTOR=$GITHUB_ACTOR \
+            -PGITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
