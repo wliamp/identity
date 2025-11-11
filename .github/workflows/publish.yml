@@ -3,44 +3,41 @@ on:
   push:
     branches: [ main ]
 jobs:
-  detect-changes:
+  detect:
     steps:
-      - uses: actions/checkout@v4
+      - uses: tj-actions/changed-files@v47
         with:
-          repository: hamsaqua/script
-          fetch-depth: 1
-          path: ${{ runner.temp }}/script
-      - uses: actions/checkout@v4
+          base_branch: main
+        id: changed
+      - uses: ${{ vars.SCRIPT_REPO }}/.github/actions/${{ vars.DETECT_SCRIPT }}@main
         with:
-          fetch-depth: 2
-      - run: bash ${{ runner.temp }}/script/api/publish
-        id: detect
+          changed: ${{ toJSON(steps.changed.outputs.all_changed_files) }}
+          extension: yaml
+        id: matrix
     outputs:
-      matrix: ${{ steps.detect.outputs.matrix }}
+      matrix: ${{ steps.matrix.outputs.matrix }}
     runs-on: ubuntu-latest
   publish:
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
-          fetch-depth: 1
           sparse-checkout: |
             ${{ matrix.scope }}/${{ matrix.service }}/${{ matrix.domain }}.${{ matrix.usecase }}.${{ matrix.version }}.yaml
             *.gradle.kts
             gradle/
             gradlew
-      - uses: hamsaqua/action/.github/actions/publish-rest@main
+      - uses: ${{ vars.ACTION_REPO }}/.github/actions/${{ vars.PUBLISH_ACTION }}@main
         with:
           scope: ${{ matrix.scope }}
           service: ${{ matrix.service }}
           domain: ${{ matrix.domain }}
           usecase: ${{ matrix.usecase }}
           version: ${{ matrix.version }}
-          tag: ${{ github.sha }}
-          in_pat: ${{ secrets.REST_PAT }}
-          ex_pat: ${{ secrets.STARTER_PAT }}
+          rest_pat: ${{ secrets.REST_PAT }}
+          starter_pat: ${{ secrets.STARTER_PAT }}
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJSON(needs.detect-changes.outputs.matrix) }}
-    needs: detect-changes
+        include: ${{ fromJSON(needs.detect.outputs.matrix) }}
+    needs: detect
     runs-on: ubuntu-latest

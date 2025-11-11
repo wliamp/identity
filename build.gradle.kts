@@ -5,7 +5,7 @@ plugins {
     id("maven-publish")
 }
 
-group = "org.hamsaqua"
+group = "com.hamsaqua.rest"
 version = getenv("ARTIFACT_VER") ?: ""
 
 publishing {
