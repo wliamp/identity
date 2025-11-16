@@ -1,22 +1,49 @@
 import java.lang.System.getenv
 
+val tld: String? = getenv("TLD")
+val org: String? = getenv("ORG")
+val id: String? = getenv("ID")
+val repo: String? = getenv("REPO")
+val actor: String? = getenv("ACTOR")
+val token: String? = getenv("TOKEN")
+
 plugins {
-    id("java")
-    id("maven-publish")
+    java
+    `maven-publish`
 }
 
-group = "com.hamsaqua.rest"
-version = getenv("ARTIFACT_VER") ?: ""
+group = "$tld.$org"
+version = getenv("TAG") ?: ""
 
 publishing {
     publications {
-        create<MavenPublication>("mavenJava") {
+        create<MavenPublication>("model") {
             from(components["java"])
-            artifactId = getenv("ARTIFACT_ID") ?: ""
+            artifactId = "$id-model"
             pom {
                 name.set(artifactId)
-                description.set("Internal REST API Contracts")
-                url.set("https://github.com/hamsaqua/rest")
+                description.set("Reusable REST API models specification")
+                url.set("https://github.com/$org/$repo")
+            }
+        }
+
+        create<MavenPublication>("api") {
+            from(components["java"])
+            artifactId = "$id-api"
+            pom {
+                name.set(artifactId)
+                description.set("Reusable REST APIs specification")
+                url.set("https://github.com/$org/$repo")
+            }
+        }
+
+        create<MavenPublication>("client") {
+            from(components["java"])
+            artifactId = "$id-client"
+            pom {
+                name.set(artifactId)
+                description.set("Reusable REST API clients specification")
+                url.set("https://github.com/$org/$repo")
             }
         }
     }
@@ -24,10 +51,10 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/hamsaqua/rest")
+            url = uri("https://maven.pkg.github.com/$org/$repo")
             credentials {
-                username = getenv("GITHUB_ACTOR") ?: ""
-                password = getenv("GITHUB_TOKEN") ?: ""
+                username = actor
+                password = token
             }
         }
     }

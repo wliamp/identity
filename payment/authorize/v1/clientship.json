@@ -1,0 +1,12 @@
+[
+  {
+    "server": "payment-gateway",
+    "client": [
+    ]
+  },
+  {
+    "server": "authorize-request",
+    "client": [
+    ]
+  }
+]
