@@ -6,9 +6,9 @@ info:
     - Public endpoint for merchants to initiate authorization requests.
     - Immediate ACK returned; final result delivered via webhook/callback or via event.
 servers:
-  - url: https://gateway.internal
+  - url: https://pay.internal
 paths:
-  /v1/authorize:
+  /gtw/v1:
     post:
       summary: Initiate payment authorization
       operationId: authorizePayment

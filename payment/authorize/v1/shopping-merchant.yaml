@@ -8,9 +8,9 @@ info:
     - Public endpoint (called by payer-facing app)
     - Webhook endpoint (called by payment gateway)
 servers:
-  - url: https://merchant.internal
+  - url: https://shop.internal
 paths:
-  /v1/checkout/pay:
+  /mech/v1:
     post:
       summary: Initiate checkout payment
       description: |
