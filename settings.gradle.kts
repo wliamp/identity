@@ -1,1 +1,3 @@
-rootProject.name = "rest"
+rootProject.name = "identity"
+
+include("core")
