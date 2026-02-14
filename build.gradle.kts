@@ -121,11 +121,7 @@ tasks.register("listModules") {
                 .subprojects
                 .map { it.name }
                 .sorted()
-                .joinToString(
-                    prefix = "[\"",
-                    postfix = "\"]",
-                    separator = "\",\""
-                )
+                .joinToString("\",\"", "[\"", "\"]")
         )
     }
 }
