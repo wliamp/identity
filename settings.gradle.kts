@@ -1,3 +1,9 @@
+import java.lang.System.getenv
+
 rootProject.name = "identity"
 
-include("core")
+getenv("MODULE")?.takeIf { it.isNotBlank() }?.let {
+    include(it)
+} ?: include(
+    "core",
+)
