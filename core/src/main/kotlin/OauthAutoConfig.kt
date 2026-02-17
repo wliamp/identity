@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
-import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClient.*
 
 @AutoConfiguration
 @EnableConfigurationProperties(OauthProps::class)
@@ -20,7 +20,7 @@ internal class OauthAutoConfig private constructor(
         havingValue = "true",
         matchIfMissing = true
     )
-    fun fb(): OauthFacebook = OauthFacebook(props.facebook, WebClient.builder().build())
+    fun fb(): OauthFacebook = OauthFacebook(props.facebook, builder().build())
 
     @Bean
     @ConditionalOnProperty(
@@ -29,7 +29,7 @@ internal class OauthAutoConfig private constructor(
         havingValue = "true",
         matchIfMissing = true
     )
-    fun gg(): OauthGoogle = OauthGoogle(props.google, WebClient.builder().build())
+    fun gg(): OauthGoogle = OauthGoogle(props.google, builder().build())
 
     @Bean
     @ConditionalOnProperty(
@@ -38,7 +38,7 @@ internal class OauthAutoConfig private constructor(
         havingValue = "true",
         matchIfMissing = true
     )
-    fun zl(): OauthZalo = OauthZalo(props.zalo, WebClient.builder().build())
+    fun zl(): OauthZalo = OauthZalo(props.zalo, builder().build())
 
     @Bean
     @ConditionalOnMissingBean

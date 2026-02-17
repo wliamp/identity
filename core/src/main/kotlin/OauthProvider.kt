@@ -1,5 +1,7 @@
 package io.github.wliamp.kit.id.core
 
+import io.github.wliamp.kit.id.core.Oauth.*
+
 class OauthProvider(
     val facebook: IOauth?,
     val google: IOauth?,
@@ -7,8 +9,8 @@ class OauthProvider(
 ) {
     fun of(oauth: Oauth): IOauth? =
         when (oauth) {
-            Oauth.FACEBOOK -> facebook
-            Oauth.GOOGLE -> google
-            Oauth.ZALO -> zalo
+            FACEBOOK -> facebook
+            GOOGLE -> google
+            ZALO -> zalo
         }
 }

@@ -2,13 +2,12 @@ package io.github.wliamp.kit.id.core
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.springframework.boot.autoconfigure.AutoConfigurations
+import org.springframework.boot.autoconfigure.AutoConfigurations.*
 import org.springframework.boot.test.context.runner.ApplicationContextRunner
 
 class AutoConfigTest {
-
     private val baseRunner = ApplicationContextRunner()
-        .withConfiguration(AutoConfigurations.of(OauthAutoConfig::class.java))
+        .withConfiguration(of(OauthAutoConfig::class.java))
 
     @Test
     fun `when all enabled then all beans created`() {

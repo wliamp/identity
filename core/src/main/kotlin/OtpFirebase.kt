@@ -1,14 +1,17 @@
 package io.github.wliamp.kit.id.core
 
-import org.springframework.http.HttpMethod
+import io.github.wliamp.kit.id.core.Otp.*
+import io.github.wliamp.kit.id.core.OtpProps.*
+import org.springframework.http.HttpMethod.*
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
+import reactor.core.publisher.Mono.*
 
 internal class OtpFirebase internal constructor(
-    private val props: OtpProps.FirebaseProps,
+    private val props: FirebaseProps,
     private val webClient: WebClient
 ) : IOtp {
-    private val otp = Otp.FIREBASE.name
+    private val otp = FIREBASE.name
 
     override fun verify(code: String): Mono<Boolean> =
         fetchFirebase(code)
@@ -25,7 +28,7 @@ internal class OtpFirebase internal constructor(
         props.takeIf { it.apiKey.isNotBlank() }
             ?.let {
                 webClient.fetchPayload(
-                    HttpMethod.POST,
+                    POST,
                     "${props.baseUrl}${props.version}${props.uri}",
                     otp,
                     queryParams = mapOf("key" to props.apiKey),
@@ -34,7 +37,7 @@ internal class OtpFirebase internal constructor(
                         "code" to code
                     )
                 )
-            } ?: Mono.error(
+            } ?: error(
             VerifyConfigException(
                 otp,
                 "Missing " +

@@ -8,6 +8,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
+import reactor.core.publisher.Mono.*
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 
@@ -30,7 +31,7 @@ internal fun WebClient.fetchPayload(
         .retrieve()
         .onStatus({ it.isError }) { resp ->
             resp.bodyToMono<String>()
-                .flatMap { Mono.error(VerifyHttpException(provider, resp.statusCode().value(), it)) }
+                .flatMap { error(VerifyHttpException(provider, resp.statusCode().value(), it)) }
         }
         .bodyToMono(object : ParameterizedTypeReference<Map<String, Any>>() {})
         .onErrorMap {
@@ -40,13 +41,10 @@ internal fun WebClient.fetchPayload(
                 is SocketTimeoutException,
                 is WebClientRequestException -> VerifyNetworkException(provider, it)
                 is JsonProcessingException -> VerifyParseException(provider, "Invalid JSON", it)
-                is DecodingException -> {
-                    val cause = it.cause
-                    if (cause is JsonProcessingException)
-                        VerifyParseException(provider, "Invalid JSON", cause)
-                    else VerifyParseException(provider, "Invalid JSON", it)
-                }
+                is DecodingException ->
+                    (it.cause as? JsonProcessingException)
+                        ?.let { cause -> VerifyParseException(provider, "Invalid JSON", cause) }
+                        ?: VerifyParseException(provider, "Invalid JSON", it)
                 else -> VerifyUnexpectedException(provider, it)
             }
         }
-

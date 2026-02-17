@@ -2,13 +2,13 @@ package io.github.wliamp.kit.id.core
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.springframework.boot.autoconfigure.AutoConfigurations
+import org.springframework.beans.factory.getBean
+import org.springframework.boot.autoconfigure.AutoConfigurations.*
 import org.springframework.boot.test.context.runner.ApplicationContextRunner
 
 class PropsBindingTest {
-
     private val baseRunner = ApplicationContextRunner()
-        .withConfiguration(AutoConfigurations.of(OauthAutoConfig::class.java))
+        .withConfiguration(of(OauthAutoConfig::class.java))
 
     @Test
     fun `properties should bind correctly`() {
@@ -24,16 +24,13 @@ class PropsBindingTest {
                 "provider.oauth.zalo.fields=id,picture"
             )
             .run {
-                val props = it.getBean(OauthProps::class.java)
-
+                val props = it.getBean<OauthProps>()
                 assertThat(props.facebook.baseUrl).isEqualTo("https://custom.fb")
                 assertThat(props.facebook.appId).isEqualTo("fb-app")
                 assertThat(props.facebook.accessToken).isEqualTo("fb-token")
                 assertThat(props.facebook.fields).isEqualTo("id,name")
-
                 assertThat(props.google.baseUrl).isEqualTo("https://custom.google")
                 assertThat(props.google.clientId).isEqualTo("google-client")
-
                 assertThat(props.zalo.baseUrl).isEqualTo("https://custom.zalo")
                 assertThat(props.zalo.fields).isEqualTo("id,picture")
             }
@@ -42,8 +39,7 @@ class PropsBindingTest {
     @Test
     fun `defaults should apply when no config provided`() {
         baseRunner.run {
-            val props = it.getBean(OauthProps::class.java)
-
+            val props = it.getBean<OauthProps>()
             assertThat(props.facebook.baseUrl).isEqualTo("https://graph.facebook.com")
             assertThat(props.google.baseUrl).isEqualTo("https://oauth2.googleapis.com")
             assertThat(props.zalo.baseUrl).isEqualTo("https://graph.zalo.me")

@@ -1,16 +1,18 @@
 package io.github.wliamp.kit.id.core
 
-import org.springframework.http.HttpMethod
+import io.github.wliamp.kit.id.core.Oauth.*
+import io.github.wliamp.kit.id.core.OauthProps.*
+import org.springframework.http.HttpMethod.*
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
+import reactor.core.publisher.Mono.*
 import kotlin.collections.get
-import kotlin.text.get
 
 internal class OauthFacebook internal constructor(
-    private val props: OauthProps.FacebookProps,
+    private val props: FacebookProps,
     private val webClient: WebClient
 ) : IOauth {
-    private val oauth = Oauth.FACEBOOK.name
+    private val oauth = FACEBOOK.name
 
     override fun verify(token: String): Mono<Boolean> =
         props.takeIf {
@@ -29,7 +31,7 @@ internal class OauthFacebook internal constructor(
                 p.appId == (data["app_id"]?.toString()
                     ?: throw VerifyParseException(oauth, "Missing 'app_id' in response"))
             }
-        } ?: Mono.error(
+        } ?: error(
             VerifyConfigException(
                 oauth,
                 "Missing " +
@@ -53,7 +55,7 @@ internal class OauthFacebook internal constructor(
 
     private fun fetchFacebook(path: String, queryParams: Map<String, String>) =
         webClient.fetchPayload(
-            HttpMethod.GET,
+            GET,
             "${props.baseUrl}${path}",
             oauth,
             queryParams = queryParams

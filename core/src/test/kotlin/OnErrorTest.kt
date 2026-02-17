@@ -1,31 +1,35 @@
 package io.github.wliamp.kit.id.core
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.github.wliamp.kit.id.core.OauthProps.*
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
+import okhttp3.mockwebserver.SocketPolicy.*
 import org.junit.jupiter.api.*
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.test.StepVerifier
+import reactor.test.StepVerifier.*
 
 /**
  * Note: OnErrorTest uses GoogleProps + IGoogle as the default provider
  * only to test the generic onError mechanism (provider-agnostic)
  * */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-internal class OnErrorTest : ITestSetup<OauthProps.GoogleProps, IOauth> {
+internal class OnErrorTest : ITestSetup<GoogleProps, IOauth> {
     override val server = MockWebServer()
     override lateinit var client: WebClient
-    override lateinit var props: OauthProps.GoogleProps
+    override lateinit var props: GoogleProps
     override lateinit var provider: IOauth
     override val mapper = ObjectMapper()
 
-    override fun buildProps() = OauthProps.GoogleProps().apply {
-        clientId = "test-client"
-        baseUrl = ""
-    }
+    override fun buildProps() =
+        GoogleProps().apply {
+            clientId = "test-client"
+            baseUrl = ""
+        }
 
-    override fun buildProvider(props: OauthProps.GoogleProps, client: WebClient) =
+    override fun buildProvider(props: GoogleProps, client: WebClient) =
         OauthGoogle(props, client)
 
     @BeforeAll
@@ -45,15 +49,15 @@ internal class OnErrorTest : ITestSetup<OauthProps.GoogleProps, IOauth> {
                 .setHeader("Content-Type", "application/json")
                 .setBody("""{"error":"Bad Request"}""")
         )
-        StepVerifier.create(provider.verify("dummy-token"))
+        create(provider.verify("dummy-token"))
             .expectError(VerifyHttpException::class.java)
             .verify()
     }
 
     @Test
     fun `network error OauthNetworkException`() {
-        server.enqueue(MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE))
-        StepVerifier.create(provider.verify("dummy-token"))
+        server.enqueue(MockResponse().setSocketPolicy(NO_RESPONSE))
+        create(provider.verify("dummy-token"))
             .expectError(VerifyNetworkException::class.java)
             .verify()
     }
@@ -66,7 +70,7 @@ internal class OnErrorTest : ITestSetup<OauthProps.GoogleProps, IOauth> {
                 .setHeader("Content-Type", "application/json")
                 .setBody("not-a-json")
         )
-        StepVerifier.create(provider.getInfo("dummy-token"))
+        create(provider.getInfo("dummy-token"))
             .expectError(VerifyParseException::class.java)
             .verify()
     }
@@ -74,7 +78,7 @@ internal class OnErrorTest : ITestSetup<OauthProps.GoogleProps, IOauth> {
     @Test
     fun `getInfo returns payload`() {
         enqueueJson(server, mapOf("id" to "123", "name" to "William"))
-        StepVerifier.create(provider.getInfo("dummy-token"))
+        create(provider.getInfo("dummy-token"))
             .expectNextMatches { it["id"] == "123" && it["name"] == "William" }
             .verifyComplete()
     }

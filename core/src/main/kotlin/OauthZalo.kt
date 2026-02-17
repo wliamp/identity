@@ -1,15 +1,17 @@
 package io.github.wliamp.kit.id.core
 
+import io.github.wliamp.kit.id.core.Oauth.*
+import io.github.wliamp.kit.id.core.OauthProps.*
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpMethod.*
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
-import kotlin.text.get
 
 internal class OauthZalo internal constructor(
-    private val props: OauthProps.ZaloProps,
+    private val props: ZaloProps,
     private val webClient: WebClient
 ) : IOauth {
-    private val oauth = Oauth.ZALO.name
+    private val oauth = ZALO.name
 
     override fun verify(token: String): Mono<Boolean> =
         fetchZalo(mapOf("access_token" to token))
@@ -32,7 +34,7 @@ internal class OauthZalo internal constructor(
 
     private fun fetchZalo(queryParams: Map<String, String>) =
         webClient.fetchPayload(
-            HttpMethod.GET,
+            GET,
             "${props.baseUrl}${props.version}${props.uri}",
             oauth,
             queryParams = queryParams

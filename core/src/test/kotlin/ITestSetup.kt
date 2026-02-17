@@ -1,15 +1,16 @@
 package io.github.wliamp.kit.id.core
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.netty.channel.ChannelOption
+import io.netty.channel.ChannelOption.*
 import io.netty.handler.timeout.ReadTimeoutHandler
 import io.netty.handler.timeout.WriteTimeoutHandler
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.WebClient
-import reactor.netty.http.client.HttpClient
-import java.util.concurrent.TimeUnit
+import org.springframework.web.reactive.function.client.WebClient.builder
+import reactor.netty.http.client.HttpClient.*
+import java.util.concurrent.TimeUnit.*
 
 internal interface ITestSetup<P : Any, T> {
     val server: MockWebServer
@@ -22,18 +23,16 @@ internal interface ITestSetup<P : Any, T> {
     fun buildProvider(props: P, client: WebClient): T
 
     fun initServerAndClient() {
-        val httpClient = HttpClient.create()
-            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 200)
-            .doOnConnected { c ->
-                c.addHandlerLast(ReadTimeoutHandler(1, TimeUnit.SECONDS))
-                c.addHandlerLast(WriteTimeoutHandler(1, TimeUnit.SECONDS))
+        val httpClient = create()
+            .option(CONNECT_TIMEOUT_MILLIS, 200)
+            .doOnConnected {
+                it.addHandlerLast(ReadTimeoutHandler(1, SECONDS))
+                it.addHandlerLast(WriteTimeoutHandler(1, SECONDS))
             }
-
-        client = WebClient.builder()
+        client = builder()
             .baseUrl(server.url("/").toString().removeSuffix("/"))
             .clientConnector(ReactorClientHttpConnector(httpClient))
             .build()
-
         props = buildProps()
         provider = buildProvider(props, client)
     }

@@ -1,15 +1,17 @@
 package io.github.wliamp.kit.id.core
 
-import org.springframework.http.HttpMethod
+import io.github.wliamp.kit.id.core.Oauth.*
+import io.github.wliamp.kit.id.core.OauthProps.*
+import org.springframework.http.HttpMethod.*
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
-import kotlin.text.get
+import reactor.core.publisher.Mono.*
 
 internal class OauthGoogle internal constructor(
-    private val props: OauthProps.GoogleProps,
+    private val props: GoogleProps,
     private val webClient: WebClient
 ) : IOauth {
-    private val oauth = Oauth.GOOGLE.name
+    private val oauth = GOOGLE.name
 
     override fun verify(token: String): Mono<Boolean> =
         props.takeIf { it.clientId.isNotBlank() }
@@ -20,7 +22,7 @@ internal class OauthGoogle internal constructor(
                             ?: throw VerifyParseException(oauth, "Missing 'aud' in response"))
                     }
             }
-            ?: Mono.error(
+            ?: error(
                 VerifyConfigException(
                     oauth,
                     "Missing " +
@@ -33,7 +35,7 @@ internal class OauthGoogle internal constructor(
 
     private fun fetchGoogle(token: String) =
         webClient.fetchPayload(
-            HttpMethod.GET,
+            GET,
             "${props.baseUrl}${props.uri}",
             oauth,
             queryParams = mapOf("id_token" to token)
