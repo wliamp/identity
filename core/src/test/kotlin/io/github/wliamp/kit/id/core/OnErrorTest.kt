@@ -1,4 +1,4 @@
-package io.github.wliamp.pro.vrf
+package io.github.wliamp.kit.id.core
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import okhttp3.mockwebserver.MockResponse

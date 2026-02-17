@@ -1,8 +1,10 @@
-package io.github.wliamp.pro.vrf
+package io.github.wliamp.kit.id.core
 
 import org.springframework.http.HttpMethod
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
+import kotlin.collections.get
+import kotlin.text.get
 
 internal class OauthFacebook internal constructor(
     private val props: OauthProps.FacebookProps,

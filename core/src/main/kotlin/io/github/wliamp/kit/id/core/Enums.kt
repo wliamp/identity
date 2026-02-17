@@ -1,4 +1,4 @@
-package io.github.wliamp.pro.vrf
+package io.github.wliamp.kit.id.core
 
 enum class Oauth {
     GOOGLE,

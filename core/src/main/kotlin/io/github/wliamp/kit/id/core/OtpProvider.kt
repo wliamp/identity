@@ -1,12 +1,10 @@
-package io.github.wliamp.pro.vrf
-
-import io.github.wliamp.pro.vrf.Otp.*
+package io.github.wliamp.kit.id.core
 
 class OtpProvider(
     val firebase: IOtp?
 ) {
     fun of(otp: Otp): IOtp? =
         when (otp) {
-            FIREBASE -> firebase
+            Otp.FIREBASE -> firebase
         }
 }

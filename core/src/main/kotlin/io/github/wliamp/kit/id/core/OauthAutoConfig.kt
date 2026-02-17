@@ -1,4 +1,4 @@
-package io.github.wliamp.pro.vrf
+package io.github.wliamp.kit.id.core
 
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.boot.autoconfigure.AutoConfiguration

@@ -1,4 +1,4 @@
-package io.github.wliamp.pro.vrf
+package io.github.wliamp.kit.id.core
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
